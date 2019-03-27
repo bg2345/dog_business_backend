@@ -1,7 +1,17 @@
 from app import app, db
-from flask import request, jsonify
+from flask import Flask, request, jsonify, json
 from app.models import User, Event, Pet
-import datetime
+from datetime import datetime
+from flask_cors import CORS, cross_origin
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
+from flask_jwt_extended import (create_access_token)
+
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+
+CORS(app)
+
 
 # set index route to return nothing, just so no error occurs
 @app.route('/')
@@ -11,37 +21,34 @@ def index():
 
 @app.route('/api/register', methods=['GET', 'POST'])
 def register():
-    try:
-        first_name = request.headers.get('first_name')
-        last_name = request.headers.get('last_name')
-        street = request.headers.get('street')
-        city = request.headers.get('city')
-        state = request.headers.get('state')
-        zip = request.headers.get('zip')
-        phone = request.headers.get('phone')
-        email = request.headers.get('email')
-        password = request.headers.get('password')
+    # try:
+    first_name = request.headers.get('first_name')
+    last_name = request.headers.get('last_name')
+    street = request.headers.get('street')
+    city = request.headers.get('city')
+    state = request.headers.get('state')
+    zip = request.headers.get('zip')
+    phone = request.headers.get('phone')
+    email = request.headers.get('email')
+    password = request.headers.get('password')
 
-        # remove salt from password taken in
-        # password = password[3:]
+    password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-        # set password using set_password method
+    # if not all exist, return error
+    if not first_name and not last_name and not email:
+        return jsonify({ 'error': 'Invalid params' })
 
-        # if not all exist, return error
-        # if not first_name and not last_name and not street and not city and not state and not zip and not phone and not email:
-        #     return jsonify({ 'error': 'Invalid params' })
+    # create a user
+    user = User(first_name=first_name, last_name=last_name, street=street, city=city, state=state, zip=zip, phone=phone, email=email, password=password)
 
-        # create a user
-        user = User(first_name=first_name, last_name=last_name, street=street, city=city, state=state, zip=zip, phone=phone, email=email, password=password)
+    # add and commit to db
+    db.session.add(user)
+    db.session.commit()
 
-        # add and commit to db
-        db.session.add(user)
-        db.session.commit()
+    return jsonify({ 'success': 'Saved user' })
 
-        return jsonify({ 'success': 'Saved user' })
-
-    except:
-        return jsonify({ 'error': 'invalid params, did not save' })
+    # except:
+        # return jsonify({ 'error': 'invalid params, did not save' })
 
 @app.route('/api/retrieve', methods=['GET', 'POST'])
 def retrieve():
@@ -251,3 +258,28 @@ def deletePet():
 
     except:
         return jsonify({ 'error': 'Pet not removed, try again' })
+
+@app.route('/api/login', methods=['GET', 'POST'])
+def login():
+
+    email = request.headers.get('email')
+    password = request.headers.get('password')
+    result = ''
+
+    res = User.query.filter_by(email=email).first()
+
+    try:
+        if bcrypt.check_password_hash(res.password, password):
+            # access_token = create_access_token(identity = {'first_name': res.first_name, 'last_name': res.last_name, 'email': res.email})
+            # result = access_token
+            result = jsonify({
+                'success': 'You are now logged in.',
+                'user_id': res.id
+            })
+        else:
+            result = jsonify({'error':'Invalid username and password'})
+
+    except:
+        return jsonify({ 'error': 'Not able to login' })
+
+    return result
