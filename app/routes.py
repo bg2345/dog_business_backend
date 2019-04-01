@@ -210,7 +210,7 @@ def savePet():
         db.session.add(pet)
         db.session.commit()
 
-        return jsonify({ 'success': 'Saved pet' })
+        return jsonify({ 'success': 'Saved pet', 'pet_name': pet.pet_name })
 
     except:
         return jsonify({ 'error': 'invalid params, did not save' })
@@ -274,7 +274,15 @@ def login():
             # result = access_token
             result = jsonify({
                 'success': 'You are now logged in.',
-                'user_id': res.id
+                'user_id': res.id,
+                'first_name': res.first_name,
+                'last_name': res.last_name,
+                'street': res.street,
+                'city': res.city,
+                'state': res.state,
+                'zip': res.zip,
+                'phone': res.phone,
+                'email': res.email,
             })
         else:
             result = jsonify({'error':'Invalid username and password'})
