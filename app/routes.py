@@ -114,14 +114,19 @@ def save():
         hours = request.headers.get('hours')
         minutes = request.headers.get('minutes')
         notes = request.headers.get('notes')
+        pet = request.headers.get('pet')
+        duration = request.headers.get('duration')
 
 
         # if not all exist, return error
         if not day and not month and not year and not service:
             return jsonify({ 'error': 'Invalid params' })
 
+        # if day, month, year, hours, minutes already exists, return error
+        
+
         # create an event
-        event = Event(user_id=user_id, service=service, day=day, month=month, year=year, hours=hours, minutes=minutes, notes=notes)
+        event = Event(user_id=user_id, service=service, day=day, month=month, year=year, hours=hours, minutes=minutes, notes=notes, pet=pet, duration=duration)
 
         # add and commit to db
         db.session.add(event)
@@ -144,7 +149,8 @@ def retrieveEvent():
         hours = request.headers.get('hours')
         minutes = request.headers.get('minutes')
         notes = request.headers.get('notes')
-
+        pet = request.headers.get('pet')
+        duration = request.headers.get('duration')
 
 
         if not day and month and year:

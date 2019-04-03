@@ -28,6 +28,8 @@ class Event(db.Model):
     hours = db.Column(db.Integer)
     minutes = db.Column(db.Integer)
     notes = db.Column(db.String(500))
+    pet = db.Column(db.String(50))
+    duration = db.Column(db.Integer)
 
 class Pet(db.Model):
     pet_id = db.Column(db.Integer, primary_key=True)
