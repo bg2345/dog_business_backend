@@ -117,13 +117,14 @@ def save():
         pet = request.headers.get('pet')
         duration = request.headers.get('duration')
 
+        # query database to see if time available then save if you can, or return error
 
         # if not all exist, return error
         if not day and not month and not year and not service:
             return jsonify({ 'error': 'Invalid params' })
 
         # if day, month, year, hours, minutes already exists, return error
-        
+
 
         # create an event
         event = Event(user_id=user_id, service=service, day=day, month=month, year=year, hours=hours, minutes=minutes, notes=notes, pet=pet, duration=duration)
