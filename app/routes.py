@@ -146,12 +146,12 @@ def save():
         recipients = [user.email],
         text_body = render_template('email/appt.txt',
             name = user.first_name,
-            pet = Event.pet,
-            service = Event.service),
+            pet = event.pet,
+            service = event.service),
         html_body = render_template('email/appt.html',
             name = user.first_name,
-            pet = Event.pet,
-            service = Event.service)
+            pet = event.pet,
+            service = event.service)
     )
 
         return jsonify({ 'success': 'Saved event' })
