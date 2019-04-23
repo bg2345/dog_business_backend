@@ -1,11 +1,12 @@
 from app import app, db
-from flask import Flask, request, jsonify, json
+from flask import Flask, request, jsonify, json, render_template
 from app.models import User, Event, Pet
 from datetime import datetime
 from flask_cors import CORS, cross_origin
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import (create_access_token)
+from app.email import send_email
 
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
@@ -132,6 +133,24 @@ def save():
         # add and commit to db
         db.session.add(event)
         db.session.commit()
+
+        # call email
+
+        user = User.query.filter_by(user_id=user_id).first()
+
+        send_email(
+        subject = "Your Kett's Pets Appointment",
+        sender = app.config['ADMINS'][0],
+        recipients = [user.email],
+        text_body = render_template('email/appt.txt',
+            name = user.first_name,
+            pet = Event.pet,
+            service = Event.service),
+        html_body = render_template('email/appt.html',
+            name = user.first_name,
+            pet = Event.pet,
+            service = Event.service)
+    )
 
         return jsonify({ 'success': 'Saved event' })
 
