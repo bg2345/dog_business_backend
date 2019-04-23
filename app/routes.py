@@ -136,7 +136,9 @@ def save():
 
         # call email
 
-        user = User.query.filter_by(user_id=id).first()
+        user_id = id
+
+        user = User.query.filter_by(id=id).first()
 
         send_email(
         subject = "Your Kett's Pets Appointment",
