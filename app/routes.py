@@ -136,7 +136,7 @@ def save():
 
         # call email
 
-        id = Event.user_id
+        id = event.user_id
 
         user = User.query.filter_by(id=id).first()
 
